@@ -47,8 +47,8 @@ class ROSBaselineAgent(object):
         rgb = {'r': 0.5, 'g': 0.5, 'b': 0.5}
         commands = {
             'wheels': {
-                'motor_left': pwm_left,
-                'motor_right': pwm_right
+                'motor_left': pwm_left*0.8,
+                'motor_right': pwm_right*0.8
             },
             'LEDS': {
                 'center': rgb,
