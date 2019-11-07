@@ -1,2 +1,8 @@
 __pycache__/
 *.pyc
+
+# PyCharm artifacts
+.idea
+
+# ROS stuff
+catkin_ws
