@@ -1,11 +1,11 @@
 [submodule "simulation"]
 	path = 1_develop/simulation
-	url = https://github.com/duckietown/gym-duckietown
+	url = https://github.com/gibernas/gym-duckietown
         branch = daffy
 [submodule "dt-core"]
 	path = 1_develop/catkin_ws/src/dt-core
-	url = https://github.com/duckietown/dt-core.git
-        branch = daffy
+	url = https://github.com/gibernas/dt-core.git
+        branch = calib-ros
 [submodule "dt-ros-commons"]
 	path = 1_develop/catkin_ws/src/dt-ros-commons
 	url = https://github.com/duckietown/dt-ros-commons.git

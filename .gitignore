@@ -6,3 +6,5 @@ __pycache__/
 
 # ROS stuff
 catkin_ws
+.catkin_tools
+output

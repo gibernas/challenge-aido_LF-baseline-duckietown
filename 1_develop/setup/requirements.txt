@@ -17,6 +17,7 @@ ipywidgets
 # Varia
 opencv-python==4.0.0.21
 numpy==1.16.2
+carnivalmirror==0.6.2
 
 # AIDO Submission Infrastructure
 zuper-utils>=2.0.2,<3

@@ -6,6 +6,8 @@
     <arg name="verbose" default="true" />
     <arg name="loc" default="-1"/>
     <arg name="line_detector_param_file_name" default="$(arg param_file_name)"/>
+    <arg name="anti_instagram" default="true"/>
+    <arg name="ai_interval" default="5" doc="interval with which the linear trafo gets updated. color balance is performed every second."/>
 
     <arg name="lane_following" default="true"/>
     <arg name="/lane_following/line_detection" default="true"/>
@@ -17,10 +19,20 @@
     <!-- Start Lane Control -->
     <group if="$(arg lane_following)">
 
+        <!-- Start anti-instagram / LF, IN -->
+        <group if="$(arg anti_instagram)">
+	        <!-- NOT LOADING PARAMS FROM A YAML FILE -->
+	        <include file="$(find anti_instagram)/launch/anti_instagram_node.launch">
+		        <arg name="veh" value="$(arg veh)"/>
+		        <arg name="ai_interval" value="$(arg ai_interval)"/>
+	        </include>
+        </group>
+
         <!-- Line Detector -->
         <group if="$(arg /lane_following/line_detection)">
                 <remap from="line_detector_node/transform" to="anti_instagram_node/transform"/>
-                <remap from="line_detector_node/corrected_image/compressed" to="camera_node/image/compressed"/>
+                <!-- <remap from="line_detector_node/corrected_image/compressed" to="camera_node/image/compressed"/> -->
+                <remap from="line_detector_node/corrected_image/compressed" to="anti_instagram_node/corrected_image/compressed"/>
                 <include file="$(find line_detector)/launch/line_detector_node.launch">
                     <arg name="veh" value="$(arg veh)"/>
                     <!-- NOTE: "line_detector_param_file_name" as special case -->
