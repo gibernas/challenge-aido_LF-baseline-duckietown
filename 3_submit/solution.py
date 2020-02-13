@@ -92,7 +92,7 @@ class ROSBaselineAgent(object):
         pwm_left, pwm_right = self.trim_wrapper.undistort(pwm_left, pwm_right)
         self.last_img = self.current_img
         ################################################################################################################
-        
+
         self.agent.updated = False
 
         rgb = {'r': 0.5, 'g': 0.5, 'b': 0.5}

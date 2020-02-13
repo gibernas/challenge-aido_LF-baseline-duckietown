@@ -13,6 +13,13 @@ RUN pip install -r requirements.txt
 # if you have more file use the COPY command to move them to the workspace
 COPY solution.py ./
 
+########################################################################################################################
+# Begin of trim wrapper code                                                                                           #
+########################################################################################################################
+COPY action_invariance.py ./
+COPY models ./
+########################################################################################################################
+
 # For ROS Agent - Additional Files
 COPY rosagent.py ./
 COPY lf_slim.launch ./
