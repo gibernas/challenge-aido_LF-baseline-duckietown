@@ -16,8 +16,9 @@ COPY solution.py ./
 ########################################################################################################################
 # Begin of trim wrapper code                                                                                           #
 ########################################################################################################################
-COPY action_invariance.py ./
-COPY models ./
+COPY action_invariance.py /workspace
+COPY model.py /workspace
+COPY ConvSkip_tmp.pth /workspace
 ########################################################################################################################
 
 # For ROS Agent - Additional Files
