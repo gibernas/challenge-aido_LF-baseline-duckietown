@@ -1,7 +1,10 @@
 import numpy as np
 
 import torch
-from models.model import ConvSkip
+import torchvision
+
+import networks as pix2pix_networks
+from model import ConvSkip
 
 class TrimWrapper:
     def __init__(self):
@@ -63,3 +66,55 @@ class TrimWrapper:
     def load_model(self):
         model = torch.load('/workspace/models/model.pth', map_location=torch.device('cpu'))
         return model.double()
+
+
+class ImageTransformer:
+
+    def __init__(self):
+
+        self.load_model()
+
+    def load_model(self):
+
+        self.transform_net = pix2pix_networks.UnetGenerator(3, 3, 8).cpu()
+
+        # state_dict = torch.load("/workspace/latest_net_G.pth",
+        #                         map_location="cpu")
+
+        state_dict = torch.load("/home/gianmarco/chosen_subs/00_ros_baseline/3_submit/latest_net_G.pth",
+                                map_location="cpu")
+        # for k in list(state_dict.keys()):
+        #     if "num_batches_tracked" in k:
+        #         del state_dict[k]
+        self.transform_net.load_state_dict(state_dict)
+
+        self.transform_transform = torchvision.transforms.Compose([
+            torchvision.transforms.Resize((256, 256)),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            torchvision.transforms.Lambda(lambda x: x.unsqueeze(0))
+        ])
+
+    def transform_img(self, img):
+        img = self.transform_transform(img)
+        img = self.transform_net(img)
+
+        img = (img + 1) / 2.0 * 255.0
+        img = img.clamp(0, 255).cpu().squeeze(0).numpy()
+        img = img.transpose(1, 2, 0).astype("uint8")
+
+        return img
+
+
+if __name__ == '__main__':
+    a = ImageTransformer()
+
+    from PIL import Image
+    img = np.ones((244,234,3))
+    img = Image.open('/home/gianmarco/lenna.png')
+    img.show()
+    with torch.no_grad():
+
+        img = a.transform_img(img)
+
+        img.show()

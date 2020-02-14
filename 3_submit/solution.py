@@ -10,6 +10,10 @@ from rosagent import ROSAgent
 
 from zuper_nodes_python2 import logger, wrap_direct
 
+import torch
+from PIL import Image
+from action_invariance import ImageTransformer
+
 
 class ROSBaselineAgent(object):
     def __init__(self):
@@ -36,6 +40,8 @@ class ROSBaselineAgent(object):
 
         logger.info('completed __init__()')
 
+        self.img_transformer = ImageTransformer()
+
     def on_received_seed(self, context, data):
         np.random.seed(data)
 
@@ -46,6 +52,21 @@ class ROSBaselineAgent(object):
         logger.info("received observation")
         jpg_data = data['camera']['jpg_data']
         obs = jpg2rgb(jpg_data)
+
+        print('#############################################################')
+        print(obs.shape)
+
+        # Transform the observation
+        obs = Image.fromarray(obs, mode='RGB')
+        with torch.no_grad():
+
+            obs = self.img_transformer.transform_img(obs)
+
+            print(obs.shape)
+            print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+
+
+
         self.agent._publish_img(obs)
         self.agent._publish_info()
 
