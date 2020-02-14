@@ -79,18 +79,17 @@ class ImageTransformer:
 
         self.transform_net = pix2pix_networks.UnetGenerator(3, 3, 8).cpu()
 
-        # state_dict = torch.load("/workspace/latest_net_G.pth",
-        #                         map_location="cpu")
-
-        state_dict = torch.load("/home/gianmarco/chosen_subs/00_ros_baseline/3_submit/latest_net_G.pth",
+        state_dict = torch.load("/workspace/latest_net_G.pth",
                                 map_location="cpu")
+
         # for k in list(state_dict.keys()):
         #     if "num_batches_tracked" in k:
         #         del state_dict[k]
         self.transform_net.load_state_dict(state_dict)
 
         self.transform_transform = torchvision.transforms.Compose([
-            torchvision.transforms.Resize((256, 256)),
+            # Remove resizing or agent will likely fail
+            # torchvision.transforms.Resize((256, 256)),
             torchvision.transforms.ToTensor(),
             torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             torchvision.transforms.Lambda(lambda x: x.unsqueeze(0))
