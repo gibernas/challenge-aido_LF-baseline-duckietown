@@ -10,9 +10,13 @@ from rosagent import ROSAgent
 
 from zuper_nodes_python2 import logger, wrap_direct
 
+########################################################################################################################
+# Begin of image transform code                                                                                        #
+########################################################################################################################
 import torch
 from PIL import Image
 from action_invariance import ImageTransformer
+########################################################################################################################
 
 
 class ROSBaselineAgent(object):
@@ -40,7 +44,11 @@ class ROSBaselineAgent(object):
 
         logger.info('completed __init__()')
 
+        ################################################################################################################
+        # Begin of image transform code                                                                                #
+        ################################################################################################################
         self.img_transformer = ImageTransformer()
+        ################################################################################################################
 
     def on_received_seed(self, context, data):
         np.random.seed(data)
@@ -53,19 +61,19 @@ class ROSBaselineAgent(object):
         jpg_data = data['camera']['jpg_data']
         obs = jpg2rgb(jpg_data)
 
+
+        ################################################################################################################
+        # Begin of image transform code                                                                                #
+        ################################################################################################################
         print('#############################################################')
         print(obs.shape)
-
         # Transform the observation
         obs = Image.fromarray(obs, mode='RGB')
         with torch.no_grad():
-
             obs = self.img_transformer.transform_img(obs)
-
             print(obs.shape)
             print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-
-
+        ################################################################################################################
 
         self.agent._publish_img(obs)
         self.agent._publish_info()

@@ -5,6 +5,7 @@ import torchvision
 
 import networks as pix2pix_networks
 from model import ConvSkip
+from PIL import Image
 
 class TrimWrapper:
     def __init__(self):
