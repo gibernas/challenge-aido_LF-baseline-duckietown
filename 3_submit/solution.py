@@ -61,7 +61,6 @@ class ROSBaselineAgent(object):
         jpg_data = data['camera']['jpg_data']
         obs = jpg2rgb(jpg_data)
 
-
         ################################################################################################################
         # Begin of image transform code                                                                                #
         ################################################################################################################
@@ -69,9 +68,10 @@ class ROSBaselineAgent(object):
         obs = Image.fromarray(obs, mode='RGB')
         with torch.no_grad():
             obs = self.img_transformer.transform_img(obs)
+        ################################################################################################################
+
         self.agent._publish_img(obs)
         self.agent._publish_info()
-        ################################################################################################################
 
     def on_received_get_commands(self, context, data):
         while not self.agent.updated:
