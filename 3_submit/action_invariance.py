@@ -1,7 +1,8 @@
 import numpy as np
 
 import torch
-from models.model import ConvSkip
+from model import ConvSkip
+
 
 class TrimWrapper:
     def __init__(self):
@@ -10,14 +11,13 @@ class TrimWrapper:
         self.k = 27
         self.b = 0.108
         self.R = 0.0318
-        self.dt = 1/15
+        self.dt = 1/15.
 
         self.model = self.load_model()
 
     def undistort_action(self, u_l, u_r):
         u_l = u_l*(1 - self.trim_est)
         u_r = u_r*(1 + self.trim_est)
-        act = [u_l, u_r]
         return u_l, u_r
 
     def estimate_trim(self, x):
@@ -39,7 +39,7 @@ class TrimWrapper:
         omega_meas = x[:, 0] / self.dt
 
         # Computing the trim paramter
-        t = np.divide(omega_meas - omega, v) * self.b / 2
+        t = np.divide(omega_meas - omega, v) * self.b / 2.
         t = np.expand_dims(t, 1)
 
         # Discard outliers
@@ -55,11 +55,14 @@ class TrimWrapper:
         img0 = torch.from_numpy(img0)[None, None, :, :]
         img1 = torch.from_numpy(img1)[None, None, :, :]
 
-        img = torch.cat((img0, img1))
+        img = torch.cat((img0, img1), 1).double()/255.
+        print(img)
 
         delta_phi = self.model(img)
-        return  delta_phi
+        return delta_phi
 
     def load_model(self):
-        model = torch.load('/workspace/models/model.pth', map_location=torch.device('cpu'))
-        return model.double()
+        checkpoint = torch.load('/workspace/ConvSkip_tmp.pth', map_location=torch.device('cpu'))
+        model = checkpoint['model']
+        model.load_state_dict(checkpoint['state_dict'])
+        return model.eval()

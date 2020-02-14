@@ -20,8 +20,9 @@ COPY lf_slim.launch ./
 ########################################################################################################################
 # Begin of trim wrapper code                                                                                           #
 ########################################################################################################################
-COPY action_invariance.py ./
-COPY models ./
+COPY action_invariance.py /workspace
+COPY model.py /workspace
+COPY ConvSkip_tmp.pth /workspace
 ########################################################################################################################
 
 ## Uncomment these to build your own catkin_ws
