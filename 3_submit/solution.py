@@ -65,18 +65,13 @@ class ROSBaselineAgent(object):
         ################################################################################################################
         # Begin of image transform code                                                                                #
         ################################################################################################################
-        print('#############################################################')
-        print(obs.shape)
         # Transform the observation
         obs = Image.fromarray(obs, mode='RGB')
         with torch.no_grad():
             obs = self.img_transformer.transform_img(obs)
-            print(obs.shape)
-            print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-        ################################################################################################################
-
         self.agent._publish_img(obs)
         self.agent._publish_info()
+        ################################################################################################################
 
     def on_received_get_commands(self, context, data):
         while not self.agent.updated:

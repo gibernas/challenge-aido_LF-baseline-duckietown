@@ -20,10 +20,11 @@ COPY solution.py ./
 ########################################################################################################################
 # Begin of wrapper code                                                                                           #
 ########################################################################################################################
-COPY action_invariance.py ./
-COPY model.py ./
-COPY networks.py ./
+COPY action_invariance.py /workspace
+COPY model.py /workspace
+COPY ConvSkip_tmp.pth /workspace
 COPY latest_net_G.pth ./
+COPY networks.py ./
 ########################################################################################################################
 
 # For ROS Agent - Additional Files

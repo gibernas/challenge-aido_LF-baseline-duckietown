@@ -65,7 +65,7 @@ class TrimWrapper:
         return  delta_phi
 
     def load_model(self):
-        model = torch.load('/workspace/models/model.pth', map_location=torch.device('cpu'))
+        model = torch.load('/workspace/ConvSkip.pth', map_location=torch.device('cpu'))
         return model.double()
 
 
