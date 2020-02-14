@@ -1,8 +1,11 @@
 import numpy as np
 
 import torch
-from model import ConvSkip
+import torchvision
 
+import networks as pix2pix_networks
+from model import ConvSkip
+from PIL import Image
 
 class TrimWrapper:
     def __init__(self):
@@ -11,13 +14,14 @@ class TrimWrapper:
         self.k = 27
         self.b = 0.108
         self.R = 0.0318
-        self.dt = 1/15.
+        self.dt = 1/15
 
         self.model = self.load_model()
 
     def undistort_action(self, u_l, u_r):
         u_l = u_l*(1 - self.trim_est)
         u_r = u_r*(1 + self.trim_est)
+        act = [u_l, u_r]
         return u_l, u_r
 
     def estimate_trim(self, x):
@@ -39,7 +43,7 @@ class TrimWrapper:
         omega_meas = x[:, 0] / self.dt
 
         # Computing the trim paramter
-        t = np.divide(omega_meas - omega, v) * self.b / 2.
+        t = np.divide(omega_meas - omega, v) * self.b / 2
         t = np.expand_dims(t, 1)
 
         # Discard outliers
@@ -55,14 +59,62 @@ class TrimWrapper:
         img0 = torch.from_numpy(img0)[None, None, :, :]
         img1 = torch.from_numpy(img1)[None, None, :, :]
 
-        img = torch.cat((img0, img1), 1).double()/255.
-        print(img)
+        img = torch.cat((img0, img1))
 
         delta_phi = self.model(img)
-        return delta_phi
+        return  delta_phi
 
     def load_model(self):
-        checkpoint = torch.load('/workspace/ConvSkip_tmp.pth', map_location=torch.device('cpu'))
-        model = checkpoint['model']
-        model.load_state_dict(checkpoint['state_dict'])
-        return model.eval()
+        model = torch.load('/workspace/ConvSkip.pth', map_location=torch.device('cpu'))
+        return model.double()
+
+
+class ImageTransformer:
+
+    def __init__(self):
+
+        self.load_model()
+
+    def load_model(self):
+
+        self.transform_net = pix2pix_networks.UnetGenerator(3, 3, 8).cpu()
+
+        state_dict = torch.load("/workspace/latest_net_G.pth",
+                                map_location="cpu")
+
+        # for k in list(state_dict.keys()):
+        #     if "num_batches_tracked" in k:
+        #         del state_dict[k]
+        self.transform_net.load_state_dict(state_dict)
+
+        self.transform_transform = torchvision.transforms.Compose([
+            # Remove resizing or agent will likely fail
+            # torchvision.transforms.Resize((256, 256)),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            torchvision.transforms.Lambda(lambda x: x.unsqueeze(0))
+        ])
+
+    def transform_img(self, img):
+        img = self.transform_transform(img)
+        img = self.transform_net(img)
+
+        img = (img + 1) / 2.0 * 255.0
+        img = img.clamp(0, 255).cpu().squeeze(0).numpy()
+        img = img.transpose(1, 2, 0).astype("uint8")
+
+        return img
+
+
+if __name__ == '__main__':
+    a = ImageTransformer()
+
+    from PIL import Image
+    img = np.ones((244,234,3))
+    img = Image.open('/home/gianmarco/lenna.png')
+    img.show()
+    with torch.no_grad():
+
+        img = a.transform_img(img)
+
+        img.show()
