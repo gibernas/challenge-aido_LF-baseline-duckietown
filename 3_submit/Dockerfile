@@ -7,7 +7,7 @@ ARG BASE_TAG=${MAJOR}-${ARCH}
 # We start from the ROS Template
 FROM duckietown/challenge-aido_lf-template-ros:${BASE_TAG}
 
-RUN rm -r /workspace; mkdir /workspace
+RUN rm -r /workspace; mkdir /workspace; mkdir /workspace/models
 WORKDIR /workspace
 
 COPY requirements.txt .
@@ -21,7 +21,8 @@ COPY solution.py ./
 # Begin of trim wrapper code                                                                                           #
 ########################################################################################################################
 COPY action_invariance.py ./
-COPY models ./
+COPY model.py ./
+COPY ConvSkip_tmp.pth ./
 ########################################################################################################################
 
 # For ROS Agent - Additional Files
