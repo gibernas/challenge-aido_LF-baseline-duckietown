@@ -16,11 +16,11 @@ COPY solution.py ./
 ########################################################################################################################
 # Begin of trim wrapper code                                                                                           #
 ########################################################################################################################
-COPY action_invariance.py /workspace
-COPY model.py /workspace
-COPY ConvSkip_tmp.pth /workspace
-COPY latest_net_G.pth ./
+COPY action_invariance.py ./
+COPY model.py ./
+COPY ConvSkip.pth ./
 COPY networks.py ./
+COPY latest_net_G.pth ./
 ########################################################################################################################
 
 # For ROS Agent - Additional Files
