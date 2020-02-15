@@ -56,7 +56,7 @@ class ROSBaselineAgent(object):
         pwm_left, pwm_right = self.agent.action
         self.agent.updated = False
 
-        rgb = {'r': 0.5, 'g': 0.5, 'b': 0.5}
+        rgb = {'r': 0.5, 'g': pwm_left, 'b': pwm_right}
         commands = {
             'wheels': {
                 'motor_left': 0.5,
