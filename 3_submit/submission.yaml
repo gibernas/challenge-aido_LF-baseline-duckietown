@@ -2,6 +2,7 @@
 #  - aido-LF-sim-testing
 
 protocol: aido2_db18_agent-z2
+challenge: [gb-eV,gb-eD,gb-eI,gb-eDI]
 user-label: "00_aV"
 user-payload: {}
 description: |
