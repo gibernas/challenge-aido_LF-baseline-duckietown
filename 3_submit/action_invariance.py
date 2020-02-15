@@ -56,7 +56,6 @@ class TrimWrapper:
         img1 = torch.from_numpy(img1)[None, None, :, :]
 
         img = torch.cat((img0, img1), 1).double()/255.
-        print(img)
 
         delta_phi = self.model(img)
         return delta_phi
