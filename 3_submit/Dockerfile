@@ -18,8 +18,9 @@ COPY solution.py ./
 ########################################################################################################################
 COPY action_invariance.py /workspace
 COPY model.py /workspace
-COPY ConvSkip_tmp.pth /workspace
+COPY ConvSkip.pth /workspace
 COPY latest_net_G.pth /workspace
+COPY networks.py /workspace
 ########################################################################################################################
 
 # For ROS Agent - Additional Files

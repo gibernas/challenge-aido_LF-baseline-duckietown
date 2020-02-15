@@ -5,3 +5,4 @@ compmake==3.6.1
 comptests==1.4.27
 torch
 PyGeometry
+torchvision
