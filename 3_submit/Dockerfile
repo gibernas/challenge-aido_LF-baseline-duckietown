@@ -22,7 +22,7 @@ COPY lf_slim.launch ./
 ########################################################################################################################
 COPY action_invariance.py /workspace
 COPY model.py /workspace
-COPY ConvSkip_tmp.pth /workspace
+COPY ConvSkip.pth /workspace
 ########################################################################################################################
 
 ## Uncomment these to build your own catkin_ws
