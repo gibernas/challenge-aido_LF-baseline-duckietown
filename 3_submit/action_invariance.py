@@ -6,6 +6,7 @@ import torchvision
 import networks as pix2pix_networks
 from model import ConvSkip
 from PIL import Image
+import cv2
 
 class TrimWrapper:
     def __init__(self):
@@ -59,14 +60,16 @@ class TrimWrapper:
         img0 = torch.from_numpy(img0)[None, None, :, :]
         img1 = torch.from_numpy(img1)[None, None, :, :]
 
-        img = torch.cat((img0, img1))
+        img = torch.cat((img0, img1), 1)
 
-        delta_phi = self.model(img)
+        delta_phi = self.model(img.double())
         return  delta_phi
 
     def load_model(self):
-        model = torch.load('/workspace/ConvSkip.pth', map_location=torch.device('cpu'))
-        return model.double()
+        checkpoint = torch.load('/workspace/ConvSkip.pth', map_location=torch.device('cpu'))
+        model = checkpoint['model']
+        model.load_state_dict(checkpoint['state_dict'])
+        return model.eval()
 
 
 class ImageTransformer:
@@ -82,27 +85,22 @@ class ImageTransformer:
         state_dict = torch.load("/workspace/latest_net_G.pth",
                                 map_location="cpu")
 
-        # for k in list(state_dict.keys()):
-        #     if "num_batches_tracked" in k:
-        #         del state_dict[k]
         self.transform_net.load_state_dict(state_dict)
 
         self.transform_transform = torchvision.transforms.Compose([
-            # Remove resizing or agent will likely fail
-            # torchvision.transforms.Resize((256, 256)),
+            torchvision.transforms.Resize((512, 512)),
             torchvision.transforms.ToTensor(),
             torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-            torchvision.transforms.Lambda(lambda x: x.unsqueeze(0))
+            torchvision.transforms.Lambda(lambda x: x.unsqueeze(0)),
         ])
 
     def transform_img(self, img):
         img = self.transform_transform(img)
         img = self.transform_net(img)
-
         img = (img + 1) / 2.0 * 255.0
         img = img.clamp(0, 255).cpu().squeeze(0).numpy()
         img = img.transpose(1, 2, 0).astype("uint8")
-
+        img = cv2.resize(img, (480,640))
         return img
 
 
@@ -110,11 +108,13 @@ if __name__ == '__main__':
     a = ImageTransformer()
 
     from PIL import Image
+    import matplotlib.pyplot as plt
     img = np.ones((244,234,3))
-    img = Image.open('/home/gianmarco/lenna.png')
+    img = Image.open('/home/gianmarco/lenna1.png')
     img.show()
     with torch.no_grad():
 
         img = a.transform_img(img)
 
-        img.show()
+        plt.imshow(img)
+        plt.show()
