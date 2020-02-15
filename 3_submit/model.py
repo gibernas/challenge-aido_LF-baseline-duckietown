@@ -98,30 +98,33 @@ class ConvSkip(nn.Module):
 
         # Input layer activation
         self.conv_1 = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=5, stride=1, padding=2),
+            nn.Conv2d(in_channels=1, out_channels=16, kernel_size=5, stride=1, padding=2),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(16))
         self.conv_2 = nn.Sequential(
-            nn.Conv2d(16, 32, kernel_size=3, stride=1),
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(32))
-        self.conv_2 = nn.Sequential(
-            nn.Conv2d(32, 32, kernel_size=3, stride=1),
+        self.conv_3 = nn.Sequential(
+            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(32))
 
         self.regression_part = nn.Sequential(
-            nn.Linear(150, out_features=50),
+            nn.Linear(3072, out_features=1536),
             nn.ReLU(),
-            nn.Linear(50, out_features=self.output_size))
+            nn.Linear(1536, out_features=512),
+            nn.ReLU(),
+            nn.Linear(512, out_features=self.output_size))
 
     def forward(self, input):
 
-        img_1 = self.conv_1(input[0])
-        img_2 = self.conv_1(input[1])
+        # Now it's tricky: we pick the two images separately, and we add a fake number of channels (1)
+        img_1 = self.conv_1(input[:, 0, None, :, :])
+        img_2 = self.conv_1(input[:, 1, None, :, :])
 
         img_1 = self.conv_2(img_1)
         img_2 = self.conv_2(img_2)
@@ -129,19 +132,11 @@ class ConvSkip(nn.Module):
         img_1 = self.conv_3(img_1)
         img_2 = self.conv_3(img_2)
 
-        img_1.view(img_1.size(0), -1)
-        img_2.view(img_2.size(0), -1)
+        img_1 = img_1.view(img_1.size(0), -1)
+        img_2 = img_2.view(img_2.size(0), -1)
 
-        img_stacked = torch.cat(img_1, img_2)
+        img_stacked = torch.cat((img_1, img_2), 1)
 
         y_pred = self.regression_part(img_stacked)
 
         return y_pred  # of shape (batch_size, len, out size)
-
-
-
-
-
-
-
-

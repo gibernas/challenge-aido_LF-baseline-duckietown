@@ -64,7 +64,7 @@ class ROSBaselineAgent(object):
         ################################################################################################################
         # Begin of trim wrapper code                                                                                   #
         ################################################################################################################
-        self.current_img = cv2.cvtColor(cv2.resize(self.current_image, (80, 60)), cv2.COLOR_BGR2GRAY)
+        self.current_img = cv2.cvtColor(cv2.resize(obs, (80, 60)), cv2.COLOR_BGR2GRAY)
         ################################################################################################################
 
         self.agent._publish_img(obs)

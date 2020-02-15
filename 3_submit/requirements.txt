@@ -3,5 +3,6 @@ cbor2
 SystemCmd==2.2.2
 compmake==3.6.1
 comptests==1.4.27
-torch
+torch==1.2.0
 PyGeometry
+torchvision==0.4.0
