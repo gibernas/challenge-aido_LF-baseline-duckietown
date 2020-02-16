@@ -100,7 +100,7 @@ class ImageTransformer:
         img = (img + 1) / 2.0 * 255.0
         img = img.clamp(0, 255).cpu().squeeze(0).numpy()
         img = img.transpose(1, 2, 0).astype("uint8")
-        img = cv2.resize(img, (480,640))
+        img = cv2.resize(img, (640,480))
         return img
 
 
