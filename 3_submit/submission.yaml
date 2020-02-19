@@ -3,7 +3,7 @@
 
 protocol: aido2_db18_agent-z2
 challenge: [gb-eV,gb-eD,gb-eI,gb-eDI]
-user-label: "01_aI"
+user-label: "01_aDI"
 user-payload: {}
 description: |
-    aI
+    aDI
