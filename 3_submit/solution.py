@@ -11,11 +11,12 @@ from rosagent import ROSAgent
 from zuper_nodes_python2 import logger, wrap_direct
 
 ########################################################################################################################
-# Begin of image transform code                                                                                        #
+# Begin of dynamics and image transform code                                                                           #
 ########################################################################################################################
+import cv2
 import torch
 from PIL import Image
-from action_invariance import ImageTransformer
+from action_invariance import ImageTransformer, TrimWrapper
 ########################################################################################################################
 
 
@@ -45,9 +46,18 @@ class ROSBaselineAgent(object):
         logger.info('completed __init__()')
 
         ################################################################################################################
-        # Begin of image transform code                                                                                #
+        # Begin of dynamics and image transform code                                                                   #
         ################################################################################################################
+        # Transformer for image invariance
         self.img_transformer = ImageTransformer()
+
+        # Vars needed for trim estimation
+        self.last_img = None
+        self.current_img = None
+        self.log_ = []
+        self.obs_counter = 0
+        self.update_countdown = 50
+        self.trim_wrapper = TrimWrapper()
         ################################################################################################################
 
     def on_received_seed(self, context, data):
@@ -62,8 +72,11 @@ class ROSBaselineAgent(object):
         obs = jpg2rgb(jpg_data)
 
         ################################################################################################################
-        # Begin of image transform code                                                                                #
+        # Begin of dynamics and image transform code                                                                   #
         ################################################################################################################
+        # Save image for trim estimation
+        self.current_img = cv2.cvtColor(cv2.resize(obs, (80, 60)), cv2.COLOR_BGR2GRAY)
+
         # Transform the observation
         obs = Image.fromarray(obs, mode='RGB')
         with torch.no_grad():
@@ -78,6 +91,26 @@ class ROSBaselineAgent(object):
             time.sleep(0.01)
 
         pwm_left, pwm_right = self.agent.action
+
+        ################################################################################################################
+        # Begin of trim wrapper code                                                                                   #
+        ################################################################################################################
+        if self.last_img is not None:
+            delta_phi = self.trim_wrapper.get_delta_phi(self.last_img, self.current_img)
+
+            # Ignore first frames as the duckiebot is speeding up
+            if self.obs_counter > 30:
+                self.log_.append([delta_phi, pwm_left, pwm_right])
+                self.update_countdown -= 1
+                if not self.update_countdown:
+                    self.trim_est = self.trim_wrapper.estimate_trim(self.log_)
+                    self.update_countdown = 30
+
+        pwm_left, pwm_right = self.trim_wrapper.undistort_action(pwm_left, pwm_right)
+        self.last_img = self.current_img
+        ################################################################################################################
+        ################################################################################################################
+        
         self.agent.updated = False
 
         rgb = {'r': 0.5, 'g': 0.5, 'b': 0.5}
