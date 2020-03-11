@@ -10,7 +10,10 @@ from rosagent import ROSAgent
 from action_invariance import TrimWrapper
 import cv2
 from zuper_nodes_python2 import logger, wrap_direct
-
+from submissionModel import Model
+from wrappers import DTPytorchWrapper, SteeringToWheelVelWrapper
+from PIL import Image
+import io
 
 class ROSBaselineAgent(object):
     def __init__(self):
@@ -47,6 +50,9 @@ class ROSBaselineAgent(object):
         self.obs_counter = 0
         self.update_countdown = 50
         self.trim_wrapper = TrimWrapper()
+        self.new_phi = None
+        self.old_phi = None
+        self.model_pose = Model()
         ################################################################################################################
 
     def on_received_seed(self, context, data):
@@ -59,6 +65,8 @@ class ROSBaselineAgent(object):
         logger.info("received observation")
         jpg_data = data['camera']['jpg_data']
         obs = jpg2rgb(jpg_data)
+
+        self.current_image = obs
 
         ################################################################################################################
         # Begin of trim wrapper code                                                                                   #
@@ -78,16 +86,20 @@ class ROSBaselineAgent(object):
         ################################################################################################################
         # Begin of trim wrapper code                                                                                   #
         ################################################################################################################
+        self.old_phi = self.new_phi if self.new_phi is not None else None
+        self.new_phi = self.model_pose.predict(self.current_image).detach().cpu().numpy()[0][1] * 3.1415
+
         if self.last_img is not None:
-            delta_phi = self.trim_wrapper.get_delta_phi(self.last_img, self.current_img)
+            delta_phi = self.new_phi - self.old_phi
 
             # Ignore first frames as the duckiebot is speeding up
-            if self.obs_counter > 30:
-                self.log_.append([delta_phi, pwm_left, pwm_right])
+            if self.obs_counter > 10:
+                dphi = delta_phi.item()
+                self.log_.append([dphi, pwm_left, pwm_right])
                 self.update_countdown -= 1
                 if not self.update_countdown:
                     self.trim_est = self.trim_wrapper.estimate_trim(self.log_)
-                    self.update_countdown = 30
+                    self.update_countdown = 20
 
         pwm_left, pwm_right = self.trim_wrapper.undistort_action(pwm_left, pwm_right)
         self.last_img = self.current_img

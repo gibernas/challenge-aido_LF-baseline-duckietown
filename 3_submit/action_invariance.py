@@ -15,7 +15,7 @@ class TrimWrapper:
         self.k = 27
         self.b = 0.108
         self.R = 0.0318
-        self.dt = 1/15
+        self.dt = 1/13.12
 
         self.model = self.load_model()
 
@@ -28,8 +28,8 @@ class TrimWrapper:
     def estimate_trim(self, x):
         # x = [delta_phi, u_l, u_r]
         # Remove data when DB accelerates
-        x = x[30:]
-
+        x = x[10:]
+        x = np.array(x)
         # Remove data when there is no delta angle
         mask = x[:, 0] != 0
         x = x[mask]
@@ -38,6 +38,7 @@ class TrimWrapper:
         omega_l = x[:, 1] * self.k
         omega_r = x[:, 2] * self.k
         omega = (omega_r - omega_l) * self.R / self.b
+
         v = self.R / 2 * (omega_l + omega_r)
 
         # Compute an estimate for the real omega
@@ -53,6 +54,7 @@ class TrimWrapper:
 
         # Compute average over samples
         t_est = np.mean(t)
+        self.trim_est = t_est
 
         return t_est
 
