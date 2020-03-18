@@ -6,5 +6,7 @@ comptests==1.4.27
 
 torch
 torchvision
+torch-dct
 numpy
 pillow
+PyGeometry
