@@ -57,7 +57,7 @@ class ROSBaselineAgent(object):
         self.current_image = None
         self.log_ = []
         self.obs_counter = 0
-        self.update_countdown = 50
+        self.update_countdown = 20
         self.trim_wrapper = TrimWrapper()
         self.new_phi = None
         self.old_phi = None
