@@ -45,7 +45,7 @@ class ROSBaselineAgent(object):
         ################################################################################################################
         # Vars needed for trim estimation
         self.last_img = None
-        self.current_img = None
+        self.current_image = None
         self.log_ = []
         self.obs_counter = 0
         self.update_countdown = 20
@@ -70,7 +70,7 @@ class ROSBaselineAgent(object):
         ################################################################################################################
         # Begin of trim wrapper code                                                                                   #
         ################################################################################################################
-        self.current_img = cv2.cvtColor(cv2.resize(obs, (80, 60)), cv2.COLOR_BGR2GRAY)
+        self.current_image = obs
         ################################################################################################################
 
         self.agent._publish_img(obs)
@@ -100,7 +100,7 @@ class ROSBaselineAgent(object):
                     self.update_countdown = 20
 
         pwm_left, pwm_right = self.trim_wrapper.undistort_action(pwm_left, pwm_right)
-        self.last_img = self.current_img
+        self.last_img = self.current_image
         ################################################################################################################
         ################################################################################################################
 
