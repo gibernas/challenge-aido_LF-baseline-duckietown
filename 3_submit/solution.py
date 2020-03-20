@@ -112,7 +112,8 @@ class ROSBaselineAgent(object):
                     self.trim_est = self.trim_wrapper.estimate_trim(self.log_)
                     self.update_countdown = 20
 
-        self.obs_counter += 1
+            else:
+                self.obs_counter += 1
         pwm_left, pwm_right = self.trim_wrapper.undistort_action(pwm_left, pwm_right)
         self.last_img = self.current_image
         ################################################################################################################
